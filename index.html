@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>XTINK — Universal Preview Engine</title>
+<title>XTINK — FLUX Studio</title>
 <style>
 :root{color-scheme:dark;--bg:#0b0d12;--panel:#11151e;--panel2:#171d29;--line:#252d3b;--text:#e8edf6;--muted:#8792a5;--blue:#75a7ff;--green:#54d6a0;--red:#ff7e86}
 *{box-sizing:border-box}html,body{margin:0;width:100%;height:100%;overflow:hidden;background:var(--bg);color:var(--text);font:14px/1.45 Inter,ui-sans-serif,system-ui,Segoe UI,Arial}
@@ -43,15 +43,19 @@ button,input{font:inherit}button{cursor:pointer;border:1px solid var(--line);bac
 .xbot-foot{padding:0 12px 7px;color:#78879d;font-size:9px;background:#121a26}
 .xbot-hidden-input{display:none!important}
 @media(max-width:760px){.xbot-panel{right:12px;bottom:80px;width:40vw;height:50vh;min-width:0;min-height:0}.xbot-launcher{right:15px;bottom:15px}}
+.flux-help{padding:8px 14px;border-bottom:1px solid var(--line);font-size:11px;color:#91a4c0;background:#101827}.flux-help code{color:#b9d3ff}.mode-active{background:#244b80!important;border-color:#548bdc!important}
+@media(max-width:600px){.xbot-panel{right:10px;bottom:76px;width:calc(100vw - 20px);height:50vh}.top-actions{gap:4px}.top-actions button{font-size:10px;padding:6px}}
 </style>
 </head>
 <body>
 <header class="top">
-  <div class="brand">XTINK <span>PREVIEW</span></div>
+  <div class="brand">XTINK <span>FLUX STUDIO</span></div>
   <div class="top-actions">
     <span class="pill" id="engineState">ENGINE READY</span>
     <button id="openBtn">Open files</button>
-    <button class="primary" id="runBtn">▶ Run preview</button>
+    <button id="newFluxBtn">＋ New FLUX</button>
+    <button class="primary" id="runFluxTopBtn">▶ Run FLUX</button>
+    <button id="runBtn">Run preview</button>
   </div>
 </header>
 <main class="layout" id="layout">
@@ -65,10 +69,11 @@ button,input{font:inherit}button{cursor:pointer;border:1px solid var(--line);bac
     </div>
     <div class="section-head">Files</div>
     <div class="file-list" id="fileList"></div>
-    <div class="side-foot">Local preview prototype · Files stay in your browser</div>
+    <div class="side-foot">FLUX source + generated project files · Browser workspace</div>
   </aside>
   <section class="work">
-    <div class="tabs"><span class="tabname" id="activeName">No file selected</span><span class="pill" id="fileType">EMPTY</span></div>
+    <div class="tabs"><span class="tabname" id="activeName">No file selected</span><div style="display:flex;gap:6px;align-items:center"><button id="fluxModeBtn" class="primary" type="button">FLUX mode</button><button id="codeModeBtn" type="button">Code mode</button><span class="pill" id="fileType">EMPTY</span></div></div>
+    <div class="flux-help" id="fluxHelp">FLUX is context-dependent. Write intent as <code>{codename} {phrase, phrase, phrase}</code>. Keywords do not have fixed universal meanings.</div>
     <div class="editor-wrap"><pre class="editor" id="editor">Upload files or a ZIP project to begin.
 
 Supported in this prototype:
@@ -81,6 +86,7 @@ Other project formats are detected and explained when a native
 runtime, compiler, SDK or backend is required.</pre></div>
     <div class="editor-actions">
       <button class="primary" id="runCodeBtn">▶ Run selected</button>
+      <button class="primary" id="runFluxBtn">▶ Run FLUX</button>
       <button id="saveBtn">Save edits locally</button>
       <span class="muted" id="editHint" style="font-size:11px">Editor is read-only until a file is opened.</span>
     </div>
@@ -129,12 +135,60 @@ runtime, compiler, SDK or backend is required.</pre></div>
  const name=p=>p.split('/').pop();
  const mime=p=>({html:'text/html',htm:'text/html',css:'text/css',js:'text/javascript',mjs:'text/javascript',json:'application/json',svg:'image/svg+xml',png:'image/png',jpg:'image/jpeg',jpeg:'image/jpeg',gif:'image/gif',webp:'image/webp',mp4:'video/mp4',webm:'video/webm',mp3:'audio/mpeg',wav:'audio/wav',pdf:'application/pdf',txt:'text/plain',md:'text/markdown'}[ext(p)]||'application/octet-stream');
  const textExt=new Set(['html','htm','css','js','mjs','json','txt','md','py','ts','tsx','jsx','xml','yaml','yml','toml','sh','java','c','cpp','h','cs','go','rs','php','rb','swift','kt','dart','flux','sql','ini','gradle']);
+ let editorMode='flux';
+ const starterFlux=`{app} {dark, clean, responsive, dashboard}\n{header} {xtink, navigation, logo}\n{main} {welcome message, project overview, activity cards}\n{interaction} {buttons, responsive layout, smooth transitions}\n{style} {midnight background, blue accents, readable typography}`;
+ function setEditorMode(mode){
+   editorMode=mode;
+   $('fluxModeBtn').classList.toggle('mode-active',mode==='flux');
+   $('codeModeBtn').classList.toggle('mode-active',mode==='code');
+   $('runFluxBtn').style.display=mode==='flux'?'inline-block':'none';
+   $('runCodeBtn').style.display=mode==='code'?'inline-block':'none';
+   $('fluxHelp').style.display=mode==='flux'?'block':'none';
+   $('editHint').textContent=mode==='flux'?'Write native FLUX. Run FLUX sends your exact phrases directly to Xbot to reason and build the project.':'Edit generated source, then save or run it.';
+   if(mode==='flux' && (!activePath || ext(activePath)!=='flux')){
+     const existing=[...files.keys()].find(x=>ext(x)==='flux');
+     if(existing) openFile(existing); else {activePath='main.flux';files.set(activePath,new TextEncoder().encode(starterFlux).buffer);openFile(activePath);}
+   }
+ }
+ function saveActiveEditor(){if(activePath&&editable)files.set(activePath,new TextEncoder().encode($('editor').textContent).buffer)}
+ async function runFlux(){
+   if(editorMode!=='flux' && (!activePath || ext(activePath)!=='flux')){log('Switch to FLUX mode or open a .flux file first.','bad');return}
+   if(!activePath || ext(activePath)!=='flux'){setEditorMode('flux')}
+   saveActiveEditor();
+   const source=activePath&&files.has(activePath)?asText(files.get(activePath)):$('editor').textContent;
+   if(!source.trim()){log('The FLUX file is empty. Add some instructions first.','bad');return}
+   const buttons=[$('runFluxBtn'),$('runFluxTopBtn')];buttons.forEach(b=>{b.disabled=true;b.textContent='Sending to Xbot…'});
+   $('engineState').textContent='Xbot thinking';log('Sending the exact FLUX phrases from '+(activePath||'main.flux')+' directly to Xbot…');
+   try{
+     const projectFiles=[];
+     for(const [path,data] of files){
+       if(path===activePath || !textExt.has(ext(path))) continue;
+       if(projectFiles.length>=20) break;
+       projectFiles.push({path,content:asText(data).slice(0,9000)});
+     }
+     const activeContent=source;
+     const response=await fetch(XBOT_API_BASE+'/api/chat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({message:'Build or update the project described by these FLUX phrases. Read the phrases directly as a whole; use your reasoning and the existing project context. Return complete files for the requested result.',flux:source,active_file:activePath||'main.flux',history:[],context:{active_file:activePath||'main.flux',active_file_content:activeContent,project_files:projectFiles}})});
+     const data=await response.json();if(!response.ok)throw new Error(data.error||('Backend returned '+response.status));
+     const generated=Array.isArray(data.files)?data.files:[];let added=0;
+     for(const item of generated){if(!item||typeof item.path!=='string'||typeof item.content!=='string')continue;const path=item.path.replaceAll('\\','/');if(path.startsWith('/')||path.split('/').includes('..'))continue;files.set(path,new TextEncoder().encode(item.content).buffer);added++;}
+     renderTree();
+     $('stage').innerHTML='';const panel=document.createElement('div');panel.className='notice';const h=document.createElement('h2');h.textContent=added?'Xbot completed the FLUX build — project files generated':'Xbot processed the FLUX';const p1=document.createElement('p');p1.textContent=data.reply||'Xbot has processed the FLUX source.';const p2=document.createElement('p');p2.textContent=added?added+' file(s) added to Project Explorer. Open index.html or another entry file and run the preview.':'No files were generated for this request. Refine the FLUX or ask Xbot for a build.';panel.append(h,p1,p2);$('stage').appendChild(panel);
+     log(data.reply||'FLUX request completed.','good');log('Generated '+added+' project file(s).',added?'good':'');$('engineState').textContent=added?'PROJECT GENERATED':'FLUX PROCESSED';
+     const firstHtml=[...files.keys()].find(x=>/^index\.html?$/i.test(name(x)));if(firstHtml){openFile(firstHtml);$('layout').classList.remove('show-preview');log('Open '+firstHtml+' and choose Run preview to view the generated app.','good')}
+   }catch(err){log('FLUX run failed: '+err.message,'bad');$('engineState').textContent='FLUX ERROR'}
+   finally{buttons.forEach((b,i)=>{b.disabled=false;b.textContent='▶ Run FLUX'})}
+ }
+ $('fluxModeBtn').addEventListener('click',()=>setEditorMode('flux'));
+ $('codeModeBtn').addEventListener('click',()=>setEditorMode('code'));
+ $('runFluxBtn').addEventListener('click',runFlux);
+ $('runFluxTopBtn').addEventListener('click',runFlux);
+ $('newFluxBtn').addEventListener('click',()=>{const p='main.flux';files.set(p,new TextEncoder().encode(starterFlux).buffer);setEditorMode('flux');openFile(p);log('Created '+p+'.','good')});
  function renderTree(){const list=$('fileList');list.innerHTML='';const paths=[...files.keys()].sort();$('fileCount').textContent=paths.length+' files';for(const p of paths){const b=document.createElement('button');b.className='file'+(p===activePath?' active':'');const ic=document.createElement('span');ic.className='ficon';ic.textContent=iconFor(p);const t=document.createElement('span');t.className='fname';t.textContent=p;b.append(ic,t);b.onclick=()=>openFile(p);list.appendChild(b)}}
  function iconFor(p){const e=ext(p);if(['html','htm'].includes(e))return'🌐';if(['png','jpg','jpeg','gif','webp','svg'].includes(e))return'▧';if(e==='py')return'🐍';if(e==='pdf')return'▤';if(['mp4','webm','mp3','wav'].includes(e))return'♫';return'{}'}
  function asText(v){return typeof v==='string'?v:new TextDecoder().decode(v)}
  async function addFiles(fileList){for(const f of fileList){if(f.name.toLowerCase().endsWith('.zip')){await addZip(f);continue}files.set(f.webkitRelativePath||f.name,await f.arrayBuffer())}renderTree();log('Loaded '+fileList.length+' selected item(s).','good');if(!activePath&&files.size){const preferred=[...files.keys()].find(p=>/^index\.html?$/i.test(name(p)))||[...files.keys()][0];openFile(preferred)}}
  async function addZip(file){if(!window.JSZip){log('ZIP support library did not load. Check your internet connection.','bad');return}try{const zip=await JSZip.loadAsync(file);let count=0;for(const [p,obj] of Object.entries(zip.files)){if(obj.dir||p.split('/').some(x=>x==='node_modules'||x==='.git'||x==='__MACOSX'))continue;files.set(p,await obj.async('arraybuffer'));count++}log('Extracted '+count+' files from '+file.name+'.','good')}catch(e){log('Could not read ZIP: '+e.message,'bad')}}
- function openFile(p){activePath=p;const data=files.get(p);$('activeName').textContent=p;$('fileType').textContent=ext(p).toUpperCase()||'FILE';const ed=$('editor');if(textExt.has(ext(p))){ed.textContent=asText(data);editable=true;$('editHint').textContent='Edit source, then Save edits locally.'}else{ed.textContent='Binary file: '+p+'\nUse Run preview to render it if this format is supported.';editable=false;$('editHint').textContent='Binary file — not editable as text.'}ed.contentEditable=editable?'true':'false';renderTree();$('layout').classList.remove('show-preview')}
+ function openFile(p){if(activePath&&editable)files.set(activePath,new TextEncoder().encode($('editor').textContent).buffer);activePath=p;const data=files.get(p);$('activeName').textContent=p;$('fileType').textContent=ext(p).toUpperCase()||'FILE';const ed=$('editor');if(textExt.has(ext(p))){ed.textContent=asText(data);editable=true;$('editHint').textContent='Edit source, then Save edits locally.'}else{ed.textContent='Binary file: '+p+'\nUse Run preview to render it if this format is supported.';editable=false;$('editHint').textContent='Binary file — not editable as text.'}ed.contentEditable=editable?'true':'false';renderTree();$('layout').classList.remove('show-preview')}
  function getData(p){if(p===activePath&&editable)return $('editor').textContent;return asText(files.get(p))}
  function revoke(){if(activeUrl){URL.revokeObjectURL(activeUrl);activeUrl=null}if(lastPreviewUrl){URL.revokeObjectURL(lastPreviewUrl);lastPreviewUrl=null}}
  function showHTML(source,basePath){
@@ -182,7 +236,7 @@ runtime, compiler, SDK or backend is required.</pre></div>
  $('browseBtn').onclick=()=>$('fileInput').click();$('openBtn').onclick=()=>$('fileInput').click();$('fileInput').onchange=e=>addFiles(e.target.files);
  const dz=$('dropZone');['dragenter','dragover'].forEach(ev=>dz.addEventListener(ev,e=>{e.preventDefault();dz.classList.add('drag')}));['dragleave','drop'].forEach(ev=>dz.addEventListener(ev,e=>{e.preventDefault();dz.classList.remove('drag')}));dz.addEventListener('drop',e=>addFiles(e.dataTransfer.files));document.addEventListener('dragover',e=>e.preventDefault());document.addEventListener('drop',e=>{e.preventDefault();if(e.dataTransfer.files.length)addFiles(e.dataTransfer.files)});
  $('runBtn').onclick=run;$('runCodeBtn').onclick=()=>{if(!activePath){log('Open a file first.','bad');return}if(editable)files.set(activePath,new TextEncoder().encode($('editor').textContent).buffer);run()};$('saveBtn').onclick=()=>{if(!activePath||!editable){log('No editable source file is open.','bad');return}files.set(activePath,new TextEncoder().encode($('editor').textContent).buffer);log('Saved '+activePath+' in this browser session.','good')};$('refreshBtn').onclick=run;$('clearConsole').onclick=()=>$('console').textContent='';$('newTabBtn').onclick=()=>{if(lastPreviewUrl)window.open(lastPreviewUrl,'_blank','noopener');else log('Run a preview first.','bad')};
- $('engineState').textContent='ENGINE READY';log('Ready. Upload individual files or a ZIP archive.'); 
+ $('engineState').textContent='FLUX READY';log('XTINK FLUX Studio ready. Create a .flux file or open an existing project.');setEditorMode('flux'); 
 
  // Xbot chat UI and attachment picker.
  const XBOT_API_BASE = "https://xtinkflux.onrender.com";
