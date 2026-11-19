@@ -144,7 +144,7 @@ runtime, compiler, SDK or backend is required.</pre></div>
    $('runFluxBtn').style.display=mode==='flux'?'inline-block':'none';
    $('runCodeBtn').style.display=mode==='code'?'inline-block':'none';
    $('fluxHelp').style.display=mode==='flux'?'block':'none';
-   $('editHint').textContent=mode==='flux'?'Write native FLUX. Run FLUX sends your exact phrases directly to Xbot to reason and build the project.':'Edit generated source, then save or run it.';
+   $('editHint').textContent=mode==='flux'?'Write native FLUX. Run FLUX asks Xbot to interpret and build the project.':'Edit generated source, then save or run it.';
    if(mode==='flux' && (!activePath || ext(activePath)!=='flux')){
      const existing=[...files.keys()].find(x=>ext(x)==='flux');
      if(existing) openFile(existing); else {activePath='main.flux';files.set(activePath,new TextEncoder().encode(starterFlux).buffer);openFile(activePath);}
@@ -157,26 +157,19 @@ runtime, compiler, SDK or backend is required.</pre></div>
    saveActiveEditor();
    const source=activePath&&files.has(activePath)?asText(files.get(activePath)):$('editor').textContent;
    if(!source.trim()){log('The FLUX file is empty. Add some instructions first.','bad');return}
-   const buttons=[$('runFluxBtn'),$('runFluxTopBtn')];buttons.forEach(b=>{b.disabled=true;b.textContent='Sending to Xbot…'});
-   $('engineState').textContent='Xbot thinking';log('Sending the exact FLUX phrases from '+(activePath||'main.flux')+' directly to Xbot…');
+   const buttons=[$('runFluxBtn'),$('runFluxTopBtn')];buttons.forEach(b=>{b.disabled=true;b.textContent='Interpreting…'});
+   $('engineState').textContent='Xbot interpreting FLUX';log('Sending '+(activePath||'main.flux')+' to Xbot FLUX interpreter…');
    try{
-     const projectFiles=[];
-     for(const [path,data] of files){
-       if(path===activePath || !textExt.has(ext(path))) continue;
-       if(projectFiles.length>=20) break;
-       projectFiles.push({path,content:asText(data).slice(0,9000)});
-     }
-     const activeContent=source;
-     const response=await fetch(XBOT_API_BASE+'/api/chat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({message:'Build or update the project described by these FLUX phrases. Read the phrases directly as a whole; use your reasoning and the existing project context. Return complete files for the requested result.',flux:source,active_file:activePath||'main.flux',history:[],context:{active_file:activePath||'main.flux',active_file_content:activeContent,project_files:projectFiles}})});
+     const response=await fetch(XBOT_API_BASE+'/api/chat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'build',message:'BUILD THIS FLUX NOW. Interpret the complete source in context and generate the actual working project files. This is a code-generation request, not a request for an explanation. Return at least one complete HTML file for a web page. Do not invent fixed meanings for individual FLUX words.',flux:source,active_file:activePath||'main.flux',history:[],context:{project_files:[...files.keys()].slice(0,100)}})});
      const data=await response.json();if(!response.ok)throw new Error(data.error||('Backend returned '+response.status));
      const generated=Array.isArray(data.files)?data.files:[];let added=0;
      for(const item of generated){if(!item||typeof item.path!=='string'||typeof item.content!=='string')continue;const path=item.path.replaceAll('\\','/');if(path.startsWith('/')||path.split('/').includes('..'))continue;files.set(path,new TextEncoder().encode(item.content).buffer);added++;}
      renderTree();
-     $('stage').innerHTML='';const panel=document.createElement('div');panel.className='notice';const h=document.createElement('h2');h.textContent=added?'Xbot completed the FLUX build — project files generated':'Xbot processed the FLUX';const p1=document.createElement('p');p1.textContent=data.reply||'Xbot has processed the FLUX source.';const p2=document.createElement('p');p2.textContent=added?added+' file(s) added to Project Explorer. Open index.html or another entry file and run the preview.':'No files were generated for this request. Refine the FLUX or ask Xbot for a build.';panel.append(h,p1,p2);$('stage').appendChild(panel);
-     log(data.reply||'FLUX request completed.','good');log('Generated '+added+' project file(s).',added?'good':'');$('engineState').textContent=added?'PROJECT GENERATED':'FLUX PROCESSED';
-     const firstHtml=[...files.keys()].find(x=>/^index\.html?$/i.test(name(x)));if(firstHtml){openFile(firstHtml);$('layout').classList.remove('show-preview');log('Open '+firstHtml+' and choose Run preview to view the generated app.','good')}
+     $('stage').innerHTML='';const panel=document.createElement('div');panel.className='notice';const h=document.createElement('h2');h.textContent=added?'FLUX interpreted — project files generated':'FLUX interpreted';const p1=document.createElement('p');p1.textContent=data.reply||'Xbot has processed the FLUX source.';const p2=document.createElement('p');p2.textContent=added?added+' file(s) added to Project Explorer. Open the generated HTML file and run the preview.':'Xbot returned no project files. Check the error in the console and try Run FLUX again.';panel.append(h,p1,p2);$('stage').appendChild(panel);
+     log(data.reply||'FLUX interpretation complete.','good');log('Generated '+added+' project file(s).',added?'good':'');$('engineState').textContent=added?'PROJECT GENERATED':'FLUX PROCESSED';
+     const htmlFiles=[...files.keys()].filter(x=>/\.html?$/i.test(x));const firstHtml=htmlFiles.find(x=>/^index\.html?$/i.test(name(x)))||htmlFiles[0];if(firstHtml){openFile(firstHtml);$('layout').classList.remove('show-preview');log('Generated page ready: '+firstHtml+'. Choose Run preview to view it.','good')}
    }catch(err){log('FLUX run failed: '+err.message,'bad');$('engineState').textContent='FLUX ERROR'}
-   finally{buttons.forEach((b,i)=>{b.disabled=false;b.textContent='▶ Run FLUX'})}
+   finally{buttons.forEach((b,i)=>{b.disabled=false;b.textContent=i===0?'▶ Run FLUX':'▶ Run FLUX'})}
  }
  $('fluxModeBtn').addEventListener('click',()=>setEditorMode('flux'));
  $('codeModeBtn').addEventListener('click',()=>setEditorMode('code'));
