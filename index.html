@@ -1,307 +1,100 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>XTINK — FLUX Studio</title>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#080b10"><title>FLUX — Programming Workspace</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/codemirror.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/theme/material-darker.min.css">
 <style>
-:root{color-scheme:dark;--bg:#0b0d12;--panel:#11151e;--panel2:#171d29;--line:#252d3b;--text:#e8edf6;--muted:#8792a5;--blue:#75a7ff;--green:#54d6a0;--red:#ff7e86}
-*{box-sizing:border-box}html,body{margin:0;width:100%;height:100%;overflow:hidden;background:var(--bg);color:var(--text);font:14px/1.45 Inter,ui-sans-serif,system-ui,Segoe UI,Arial}
-button,input{font:inherit}button{cursor:pointer;border:1px solid var(--line);background:#1a2230;color:var(--text);padding:8px 12px;border-radius:8px}button:hover{border-color:#5779ad;background:#202c3e}.primary{background:#326bd1;border-color:#326bd1}.primary:hover{background:#407be4}.muted{color:var(--muted)}.top{height:58px;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;padding:0 18px;background:#0e1118}.brand{font-weight:800;letter-spacing:2px;font-size:16px}.brand span{color:var(--blue)}.top-actions{display:flex;gap:8px;align-items:center}.layout{height:calc(100% - 58px);display:grid;grid-template-columns:260px minmax(280px,1fr) minmax(340px,1.15fr);min-height:0}.sidebar,.work,.preview{min-width:0;min-height:0}.sidebar{border-right:1px solid var(--line);background:var(--panel);display:flex;flex-direction:column}.section-head{padding:14px 15px 10px;color:var(--muted);font-size:11px;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;display:flex;justify-content:space-between;align-items:center}.drop{margin:4px 12px 12px;border:1px dashed #46536a;border-radius:12px;padding:17px 12px;text-align:center;background:#131a26}.drop.drag{border-color:var(--blue);background:#18263d}.drop strong{display:block;margin-bottom:4px}.drop p{margin:0 0 10px;color:var(--muted);font-size:12px}.file-list{overflow:auto;padding:0 8px 12px;flex:1}.file{width:100%;text-align:left;display:flex;align-items:center;gap:8px;padding:7px 9px;border:0;background:transparent;border-radius:6px;color:#c9d2e2;font-size:12px;overflow:hidden}.file:hover,.file.active{background:#202b3d}.file .fname{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.file .ficon{width:17px;text-align:center;color:var(--blue)}.side-foot{border-top:1px solid var(--line);padding:12px;color:var(--muted);font-size:11px}.work{display:flex;flex-direction:column;background:#0e121a;border-right:1px solid var(--line)}.tabs{height:45px;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;padding:0 14px}.tabname{font-size:12px;color:#cbd5e4;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.editor-wrap{position:relative;flex:1;min-height:0;overflow:auto;background:#0d1118}.editor{margin:0;padding:18px 18px 30px;white-space:pre;tab-size:2;font:12px/1.7 ui-monospace,SFMono-Regular,Consolas,monospace;color:#c8d5e8;min-height:100%;outline:none}.editor:focus{outline:none}.empty-editor{padding:30px;color:var(--muted);text-align:center}.editor-actions{border-top:1px solid var(--line);padding:10px 14px;display:flex;gap:8px;align-items:center;flex-wrap:wrap}.preview{display:flex;flex-direction:column;background:#10141d}.preview-head{height:45px;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;padding:0 14px}.preview-head strong{font-size:12px;letter-spacing:.5px}.status{font-size:11px;color:var(--muted)}.preview-tools{display:flex;gap:6px}.stage{position:relative;flex:1;min-height:0;background:#fff;color:#111;overflow:auto}.stage iframe{width:100%;height:100%;border:0;background:white}.stage img,.stage video{max-width:100%;max-height:100%;object-fit:contain}.stage .media-wrap{height:100%;display:flex;align-items:center;justify-content:center;background:#171b24;padding:12px}.stage embed{width:100%;height:100%;border:0}.stage pre{margin:0;padding:18px;white-space:pre-wrap;overflow-wrap:anywhere;background:#0b1018;color:#d8e4f7;min-height:100%;font:12px/1.6 ui-monospace,Consolas,monospace}.stage .notice{padding:24px;color:#253044;background:#f5f7fb;height:100%;overflow:auto}.stage .notice h2{margin-top:0}.stage .notice code{background:#e4eaf4;padding:2px 5px;border-radius:4px}.console{height:145px;flex-shrink:0;border-top:1px solid var(--line);background:#0b0f16;display:flex;flex-direction:column}.console-head{padding:7px 12px;display:flex;justify-content:space-between;color:var(--muted);font-size:11px;border-bottom:1px solid #1e2633}.console-output{padding:9px 12px;overflow:auto;white-space:pre-wrap;font:11px/1.5 ui-monospace,Consolas,monospace;color:#b8c6da;flex:1}.good{color:var(--green)}.bad{color:var(--red)}.pill{font-size:10px;border:1px solid var(--line);border-radius:20px;padding:3px 7px;color:var(--muted)}#fileInput{position:fixed;left:-10000px;top:0;width:1px;height:1px;opacity:0}.mobile-bar{display:none}
-@media(max-width:900px){.layout{grid-template-columns:190px minmax(250px,1fr)}.preview{grid-column:1/-1;display:none}.layout.show-preview{grid-template-columns:190px 1fr}.layout.show-preview .work{display:none}.layout.show-preview .preview{display:flex}.mobile-bar{display:flex;gap:6px}}
-@media(max-width:600px){.layout{grid-template-columns:1fr}.sidebar{display:none}.work{border-right:0}.top{padding:0 10px}.brand{font-size:14px}.top-actions button{padding:7px}.console{height:120px}}
-
-/* Xbot: compact launcher and bottom-right sliding chat */
-.xbot-launcher{position:fixed;right:22px;bottom:20px;z-index:10001;width:54px;height:54px;border-radius:16px;border:1px solid #527fc8;background:#1b3765;box-shadow:0 8px 26px #0009;display:grid;place-items:center;padding:0;transition:background .18s,border-color .18s}
-.xbot-launcher:hover{background:#254b83;border-color:#8ab5ff}
-.xbot-glyph{width:29px;height:24px;position:relative;border:2px solid #d9e8ff;border-radius:7px;background:#244c83}
-.xbot-glyph:before{content:"";position:absolute;left:6px;top:7px;width:4px;height:4px;border-radius:50%;background:#a9f0d2;box-shadow:11px 0 0 #a9f0d2}
-.xbot-glyph:after{content:"";position:absolute;left:11px;bottom:-6px;width:5px;height:2px;background:#d9e8ff;border-radius:2px}
-.xbot-glyph .antenna{position:absolute;left:12px;top:-8px;width:2px;height:6px;background:#d9e8ff}
-.xbot-glyph .antenna:after{content:"";position:absolute;left:-2px;top:-3px;width:6px;height:6px;border-radius:50%;background:#8ab5ff}
-.xbot-panel{position:fixed;z-index:10000;right:22px;bottom:86px;width:40vw;height:50vh;min-width:0;max-width:none;min-height:0;max-height:none;display:flex;flex-direction:column;background:#101722;border:1px solid #34445e;border-radius:16px;box-shadow:0 22px 75px #000b;overflow:hidden;transform:translateY(28px);opacity:0;pointer-events:none;transition:opacity .22s ease,transform .28s cubic-bezier(.2,.8,.2,1)}
-.xbot-panel.open{transform:translateY(0);opacity:1;pointer-events:auto}
-.xbot-head{height:54px;flex-shrink:0;display:flex;align-items:center;gap:10px;padding:0 13px;border-bottom:1px solid #283448;background:#141e2d}
-.xbot-mini{width:29px;height:29px;border-radius:9px;background:#244c83;display:grid;place-items:center;color:#d9e8ff;font-size:14px;font-weight:700}
-.xbot-headcopy{flex:1}.xbot-headcopy strong{display:block;font-size:13px}.xbot-headcopy small{color:#8e9bb0;font-size:10px}
-.xbot-close{font-size:20px;line-height:1;padding:4px 8px}
-.xbot-messages{flex:1;min-height:0;overflow:auto;padding:13px;display:flex;flex-direction:column;gap:9px}
-.xbot-msg{max-width:88%;padding:9px 11px;border-radius:11px;font-size:12px;line-height:1.5;white-space:pre-wrap;overflow-wrap:anywhere}
-.xbot-msg.bot{align-self:flex-start;background:#1b2738;color:#dce7f8;border:1px solid #2b3a50;border-top-left-radius:4px}
-.xbot-msg.user{align-self:flex-end;background:#285fba;color:#fff;border-top-right-radius:4px}
-.xbot-msg.error{border-color:#82424a;color:#ffc2c6}
-.xbot-attachments{display:flex;gap:7px;flex-wrap:wrap;padding:0 12px 8px}
-.xbot-attachment{display:flex;align-items:center;gap:6px;max-width:100%;padding:5px 8px;border:1px solid #34445e;border-radius:8px;background:#172233;color:#cbd9ec;font-size:10px}
-.xbot-attachment span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:190px}
-.xbot-attachment button{padding:0 3px;border:0;background:transparent;color:#aab8cb}
-.xbot-compose{padding:9px 10px;border-top:1px solid #283448;display:flex;gap:7px;align-items:flex-end;background:#121a26}
-.xbot-compose textarea{flex:1;resize:none;min-width:0;min-height:39px;max-height:90px;border:1px solid #34445e;border-radius:9px;background:#0b111b;color:#eaf0fa;padding:9px;font:12px/1.4 system-ui,sans-serif;outline:none}
-.xbot-compose textarea:focus{border-color:#6b9df0}
-.xbot-send{min-width:40px;height:39px;padding:0;background:#326fd1;border-color:#326fd1}
-.xbot-tools{display:flex;gap:6px;align-items:center}
-.xbot-tool{height:32px;width:34px;padding:0;border-radius:8px;color:#b8c8df;background:#1a2637;display:grid;place-items:center;font-size:15px}
-.xbot-foot{padding:0 12px 7px;color:#78879d;font-size:9px;background:#121a26}
-.xbot-hidden-input{display:none!important}
-@media(max-width:760px){.xbot-panel{right:12px;bottom:80px;width:40vw;height:50vh;min-width:0;min-height:0}.xbot-launcher{right:15px;bottom:15px}}
-.flux-help{padding:8px 14px;border-bottom:1px solid var(--line);font-size:11px;color:#91a4c0;background:#101827}.flux-help code{color:#b9d3ff}.mode-active{background:#244b80!important;border-color:#548bdc!important}
-@media(max-width:600px){.xbot-panel{right:10px;bottom:76px;width:calc(100vw - 20px);height:50vh}.top-actions{gap:4px}.top-actions button{font-size:10px;padding:6px}}
+:root{--bg:#080b10;--panel:#0d121a;--panel2:#111925;--line:#202c3a;--muted:#78899b;--text:#e8eef5;--blue:#42baff;--blue2:#167ec1;--green:#62d69b;--red:#ff6678;--amber:#eab968;--mono:'DM Mono',monospace;--sans:'Space Grotesk',sans-serif}*{box-sizing:border-box;border-radius:0!important}html,body{height:100%;margin:0;background:var(--bg);color:var(--text);font-family:var(--sans);overflow:hidden}button,input,textarea{font:inherit}button{cursor:pointer}button:disabled{opacity:.45;cursor:not-allowed}.app{height:100dvh;display:flex;flex-direction:column;background:radial-gradient(ellipse at 52% -25%,rgba(24,103,159,.13),transparent 55%),var(--bg)}.top{height:58px;flex:none;display:flex;align-items:center;gap:18px;padding:0 18px;border-bottom:1px solid var(--line);background:#090d13}.brand{display:flex;align-items:center;gap:10px;min-width:160px}.brand img{width:34px;height:34px;object-fit:contain}.brand-name{font-weight:700;letter-spacing:.17em;font-size:14px}.brand-sub{font:10px var(--mono);color:var(--muted);letter-spacing:.1em}.top-sep{height:25px;width:1px;background:var(--line)}.project-title{font-size:13px;color:#c7d3df}.top-actions{margin-left:auto;display:flex;align-items:center;gap:7px}.status{font:10px var(--mono);color:var(--muted);display:flex;align-items:center;gap:7px;margin-right:10px}.dot{width:7px;height:7px;background:var(--amber);display:inline-block}.dot.ok{background:var(--green)}.dot.bad{background:var(--red)}.btn{border:1px solid var(--line);background:#101722;color:#bdc9d6;padding:8px 11px;font:10px var(--mono);letter-spacing:.04em;transition:.15s}.btn:hover{border-color:var(--blue);color:#fff;background:#132334}.btn.primary{background:#0e3550;border-color:#1c82bc;color:#dff4ff}.btn.primary:hover{background:#145078}.btn.ghost{background:transparent}.btn.danger:hover{border-color:var(--red);color:var(--red)}.layout{flex:1;min-height:0;display:grid;grid-template-columns:235px minmax(350px,1fr) minmax(320px,42%);gap:0}.sidebar,.center,.preview{min-width:0;min-height:0;background:var(--panel)}.sidebar{border-right:1px solid var(--line);display:flex;flex-direction:column}.side-head,.pane-head{height:43px;flex:none;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;padding:0 12px;font:10px var(--mono);letter-spacing:.11em;color:#9aabba}.side-head small,.pane-head small{font-size:9px;color:#65778a}.side-tools{display:flex;gap:3px}.iconbtn{width:25px;height:25px;border:1px solid transparent;background:transparent;color:#8ea0b2;font-size:15px}.iconbtn:hover{border-color:var(--line);color:var(--blue)}.tree{padding:10px 7px;overflow:auto;flex:1}.tree-label{padding:7px 8px;color:#718397;font:9px var(--mono);letter-spacing:.12em}.file-row{width:100%;display:flex;align-items:center;gap:9px;text-align:left;padding:8px 9px;border:1px solid transparent;background:transparent;color:#aab8c7;font:11px var(--mono)}.file-row:hover{background:#121d29;color:white}.file-row.active{background:#102234;border-color:#1a4564;color:#74ceff}.file-icon{width:14px;color:#67bde9;text-align:center}.file-row .modified{margin-left:auto;color:var(--blue);font-size:9px}.side-bottom{border-top:1px solid var(--line);padding:12px}.mini-label{font:9px var(--mono);color:#6f8295;letter-spacing:.12em;margin-bottom:8px}.tool-tile{display:flex;align-items:center;justify-content:space-between;padding:9px;border:1px solid var(--line);color:#b6c5d3;font-size:11px;margin-top:5px;background:#0b1119}.tool-tile span:last-child{color:var(--blue);font:9px var(--mono)}.center{display:flex;flex-direction:column;border-right:1px solid var(--line)}.editor-top{height:42px;display:flex;align-items:center;gap:3px;padding:0 10px;border-bottom:1px solid var(--line);background:#0b1017;overflow:auto}.tab{height:41px;padding:0 12px;border:0;border-bottom:2px solid transparent;background:transparent;color:#8192a4;font:10px var(--mono);white-space:nowrap}.tab.active{border-bottom-color:var(--blue);color:#e6f5ff;background:#101a25}.editor-tools{margin-left:auto;display:flex;gap:5px;flex:none}.editor-wrap{position:relative;flex:1;min-height:0;background:#0b1017}.CodeMirror{height:100%;font:13px/1.7 var(--mono);background:#0b1017;color:#dce6ef}.CodeMirror-gutters{background:#0b1017;border-right:1px solid #1a2531}.CodeMirror-linenumber{color:#526477}.CodeMirror-cursor{border-left:2px solid var(--blue)}.CodeMirror-selected{background:#16466a!important}.fallback-editor{width:100%;height:100%;resize:none;border:0;outline:0;background:#0b1017;color:#dce6ef;padding:18px;font:13px/1.7 var(--mono);tab-size:2}.editor-foot{height:28px;flex:none;border-top:1px solid var(--line);display:flex;align-items:center;gap:14px;padding:0 12px;color:#6e8193;font:9px var(--mono)}.editor-foot span:last-child{margin-left:auto}.preview{display:flex;flex-direction:column}.preview-bar{height:43px;flex:none;display:flex;align-items:center;gap:7px;padding:0 11px;border-bottom:1px solid var(--line)}.preview-title{font:10px var(--mono);letter-spacing:.1em;color:#a4b3c1}.preview-controls{margin-left:auto;display:flex;gap:4px}.preview-controls .btn{padding:6px 8px}.preview-stage{flex:1;min-height:0;background:#fff;position:relative}.preview-stage iframe{width:100%;height:100%;border:0;background:white}.preview-empty{height:100%;display:grid;place-items:center;background:#0b1017;color:#718398;text-align:center;padding:30px}.preview-empty strong{display:block;color:#dce7f1;font-size:15px;margin-bottom:8px}.preview-empty p{font:11px/1.7 var(--mono);max-width:280px}.bottom{height:150px;flex:none;border-top:1px solid var(--line);background:#090e14;display:flex;flex-direction:column}.bottom-head{height:34px;flex:none;display:flex;align-items:center;gap:15px;padding:0 13px;border-bottom:1px solid var(--line)}.bottom-tab{border:0;background:none;color:#75879a;font:9px var(--mono);letter-spacing:.1em;height:34px}.bottom-tab.active{color:var(--blue);border-bottom:2px solid var(--blue)}.console{flex:1;overflow:auto;padding:9px 13px;font:10px/1.7 var(--mono);color:#91a3b5}.log{white-space:pre-wrap}.log.ok{color:var(--green)}.log.error{color:var(--red)}.log.info{color:#91a3b5}.log .time{color:#4f6377;margin-right:8px}.chat-launch{position:fixed;right:22px;bottom:174px;z-index:20;width:54px;height:54px;border:1px solid #238cc9;background:#0b1d2b;display:grid;place-items:center;box-shadow:0 0 22px #168ac033}.chat-launch img{width:37px;height:37px;object-fit:contain}.chat-panel{position:fixed;z-index:30;right:18px;bottom:18px;width:40vw;height:50vh;min-width:390px;min-height:340px;max-width:780px;background:#0c131c;border:1px solid #245574;box-shadow:0 20px 70px #000b;display:none;flex-direction:column}.chat-panel.open{display:flex;animation:rise .18s ease-out}@keyframes rise{from{transform:translateY(14px);opacity:.5}to{transform:none;opacity:1}}.chat-head{height:43px;flex:none;display:flex;align-items:center;gap:9px;padding:0 12px;border-bottom:1px solid var(--line);background:#101a25}.chat-head img{width:25px;height:25px;object-fit:contain}.chat-head strong{font:11px var(--mono);letter-spacing:.13em}.chat-head small{color:var(--muted);font:9px var(--mono)}.chat-head .close{margin-left:auto}.chat-messages{flex:1;min-height:0;overflow:auto;padding:13px;display:flex;flex-direction:column;gap:10px}.msg{max-width:91%;padding:10px 11px;border:1px solid var(--line);font-size:12px;line-height:1.6;white-space:pre-wrap;overflow-wrap:anywhere}.msg.bot{align-self:flex-start;background:#111c28;color:#d5e1ec}.msg.user{align-self:flex-end;background:#102c42;border-color:#1d5e87;color:#e5f6ff}.msg pre{white-space:pre-wrap;overflow-wrap:anywhere;font:10px/1.6 var(--mono)}.chat-attach{padding:7px 10px;border-top:1px solid var(--line);display:flex;gap:6px;align-items:center}.chat-attach .btn{padding:6px 8px}.attach-list{font:9px var(--mono);color:#71869a;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.chat-input{display:flex;padding:9px;gap:7px;border-top:1px solid var(--line)}.chat-input textarea{flex:1;resize:none;min-height:40px;max-height:100px;background:#080d13;border:1px solid var(--line);outline:0;color:white;padding:10px;font:11px/1.5 var(--mono)}.chat-input textarea:focus{border-color:var(--blue)}.mobile-toggle{display:none}.modal-back{position:fixed;inset:0;z-index:50;background:#000a;display:none;place-items:center;padding:18px}.modal-back.show{display:grid}.modal{width:min(420px,100%);background:#0e1620;border:1px solid #29445b;padding:18px}.modal h3{margin:0 0 14px;font-size:16px}.modal input{width:100%;background:#080d13;border:1px solid var(--line);padding:10px;color:white;outline:0;margin:6px 0 12px}.modal-actions{display:flex;justify-content:flex-end;gap:7px;margin-top:14px}.toast{position:fixed;z-index:80;left:50%;bottom:18px;transform:translateX(-50%);background:#102638;border:1px solid #2679a9;padding:9px 14px;color:#e4f6ff;font:10px var(--mono);display:none}.toast.show{display:block}.hidden{display:none!important}
+@media(max-width:1050px){.layout{grid-template-columns:190px minmax(320px,1fr)}.preview{display:none}.layout.show-preview{grid-template-columns:190px minmax(320px,1fr) minmax(280px,40%)}.layout.show-preview .preview{display:flex}}
+@media(max-width:700px){.top{height:52px;padding:0 9px;gap:8px}.brand{min-width:0}.brand-sub,.top-sep,.project-title,.status{display:none}.top-actions .btn{padding:7px 8px}.layout{grid-template-columns:1fr}.sidebar{display:none}.center{border-right:0}.preview{display:none}.layout.show-preview{grid-template-columns:1fr}.layout.show-preview .center{display:none}.layout.show-preview .preview{display:flex}.bottom{height:105px}.chat-launch{right:12px;bottom:120px;width:48px;height:48px}.chat-panel{right:0;bottom:0;width:100vw;height:72dvh;min-width:0;min-height:300px;max-width:none}.editor-tools .btn span{display:none}.bottom-head{gap:10px}}
 </style>
 </head>
 <body>
+<div class="app">
 <header class="top">
-  <div class="brand">XTINK <span>FLUX STUDIO</span></div>
-  <div class="top-actions">
-    <span class="pill" id="engineState">ENGINE READY</span>
-    <button id="openBtn">Open files</button>
-    <button id="newFluxBtn">＋ New FLUX</button>
-    <button class="primary" id="runFluxTopBtn">▶ Run FLUX</button>
-    <button id="runBtn">Run preview</button>
-  </div>
+ <div class="brand"><img src="./Flux_Tech_Terminal_Logo.png" alt="FLUX logo" onerror="this.style.display='none'"><div><div class="brand-name">FLUX</div><div class="brand-sub">PROGRAMMING ENVIRONMENT</div></div></div>
+ <div class="top-sep"></div><div class="project-title" id="projectTitle">untitled-project</div>
+ <div class="top-actions"><div class="status" id="backendStatus"><i class="dot"></i><span>CHECKING BACKEND</span></div><button class="btn ghost" id="newProjectBtn">NEW</button><button class="btn" id="openProjectBtn">IMPORT ZIP</button><button class="btn" id="exportZipBtn">EXPORT ZIP</button><button class="btn" id="saveBtn">SAVE</button><button class="btn primary" id="runBtn">▶ RUN FLUX</button></div>
 </header>
-<main class="layout" id="layout">
-  <aside class="sidebar">
-    <div class="section-head">Project Explorer <span id="fileCount">0 files</span></div>
-    <div class="drop" id="dropZone">
-      <strong>Drop a project here</strong>
-      <p>Choose files or a ZIP project archive</p>
-      <button id="browseBtn">Browse project</button>
-      <input id="fileInput" type="file" multiple accept="*/*,.zip">
-    </div>
-    <div class="section-head">Files</div>
-    <div class="file-list" id="fileList"></div>
-    <div class="side-foot">FLUX source + generated project files · Browser workspace</div>
-  </aside>
-  <section class="work">
-    <div class="tabs"><span class="tabname" id="activeName">No file selected</span><div style="display:flex;gap:6px;align-items:center"><button id="fluxModeBtn" class="primary" type="button">FLUX mode</button><button id="codeModeBtn" type="button">Code mode</button><span class="pill" id="fileType">EMPTY</span></div></div>
-    <div class="flux-help" id="fluxHelp">FLUX is context-dependent. Write intent as <code>{codename} {phrase, phrase, phrase}</code>. Keywords do not have fixed universal meanings.</div>
-    <div class="editor-wrap"><pre class="editor" id="editor">Upload files or a ZIP project to begin.
-
-Supported in this prototype:
-• HTML / CSS / JavaScript websites and browser games
-• Images, SVG, audio, video and PDF
-• Text, Markdown, JSON and source-code inspection
-• Python scripts via Pyodide (browser-based Python runtime)
-
-Other project formats are detected and explained when a native
-runtime, compiler, SDK or backend is required.</pre></div>
-    <div class="editor-actions">
-      <button class="primary" id="runCodeBtn">▶ Run selected</button>
-      <button class="primary" id="runFluxBtn">▶ Run FLUX</button>
-      <button id="saveBtn">Save edits locally</button>
-      <span class="muted" id="editHint" style="font-size:11px">Editor is read-only until a file is opened.</span>
-    </div>
-  </section>
-  <section class="preview">
-    <div class="preview-head"><strong>LIVE PREVIEW</strong><div class="preview-tools"><button id="refreshBtn">↻ Refresh</button><button id="newTabBtn">↗ New tab</button></div></div>
-    <div class="stage" id="stage"><div class="notice"><h2>Ready when you are.</h2><p>Upload a project, select a file, then choose <b>Run preview</b>.</p><p>This is a single-file browser prototype. It can run browser-native projects and render common media. It cannot magically execute native desktop/mobile binaries or server applications without their required runtimes.</p></div></div>
-    <div class="console"><div class="console-head"><span>OUTPUT / CONSOLE</span><button id="clearConsole">Clear</button></div><div class="console-output" id="console">Preview engine initialized.\nWaiting for project input.</div></div>
-  </section>
-</main>
-<script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script>
-<!-- Xbot assistant -->
-<button class="xbot-launcher" id="xbotLauncher" aria-label="Open Xbot chat" title="Open Xbot">
-  <span class="xbot-glyph"><i class="antenna"></i></span>
-</button>
-<section class="xbot-panel" id="xbotPanel" aria-label="Xbot assistant" aria-hidden="true">
-  <div class="xbot-head">
-    <div class="xbot-mini">X</div>
-    <div class="xbot-headcopy"><strong>Xbot</strong><small id="xbotStatus">Assistant · Ready</small></div>
-    <button class="xbot-close" id="xbotClose" aria-label="Close chat">×</button>
-  </div>
-  <div class="xbot-messages" id="xbotMessages">
-    <div class="xbot-msg bot">Hi, I'm Xbot. What are we working on?</div>
-  </div>
-  <div class="xbot-attachments" id="xbotAttachments"></div>
-  <form class="xbot-compose" id="xbotForm">
-    <div class="xbot-tools">
-      <button class="xbot-tool" type="button" id="xbotPictureBtn" title="Upload picture" aria-label="Upload picture">▧</button>
-      <button class="xbot-tool" type="button" id="xbotFileBtn" title="Upload file" aria-label="Upload file">＋</button>
-      <input class="xbot-hidden-input" id="xbotPictureInput" type="file" accept="image/*" multiple>
-      <input class="xbot-hidden-input" id="xbotFileInput" type="file" multiple>
-    </div>
-    <textarea id="xbotInput" rows="1" placeholder="Message Xbot…" aria-label="Message Xbot"></textarea>
-    <button class="xbot-send" id="xbotSend" type="submit" aria-label="Send message">➤</button>
-  </form>
-  <div class="xbot-foot">Attachments are included with your message where supported.</div>
+<div class="layout" id="layout">
+ <aside class="sidebar">
+  <div class="side-head"><span>PROJECT EXPLORER</span><div class="side-tools"><button class="iconbtn" id="newFileBtn" title="New file">＋</button><button class="iconbtn" id="uploadBtn" title="Upload files">↑</button></div></div>
+  <div class="tree"><div class="tree-label">▾ WORKSPACE / SRC</div><div id="fileTree"></div></div>
+  <div class="side-bottom"><div class="mini-label">WORKSPACE TOOLS</div><div class="tool-tile"><span>Project assets</span><span id="assetCount">0 FILES</span></div><div class="tool-tile"><span>Autosave</span><span style="color:var(--green)">ON</span></div><div class="tool-tile"><span>AI reasoning</span><span>XBOT</span></div></div>
+ </aside>
+ <main class="center">
+  <div class="editor-top"><button class="tab active" id="activeTab">main.flux</button><div class="editor-tools"><button class="btn" id="formatBtn">FORMAT</button><button class="btn" id="downloadBtn">DOWNLOAD</button><button class="btn" id="previewToggle">PREVIEW</button></div></div>
+  <div class="editor-wrap" id="editorWrap"><textarea id="editor" class="fallback-editor" spellcheck="false"></textarea></div>
+  <div class="editor-foot"><span id="fileType">FLUX SOURCE</span><span id="cursorPos">Ln 1, Col 1</span><span id="saveState">SAVED LOCALLY</span></div>
+ </main>
+ <section class="preview">
+  <div class="preview-bar"><span class="dot ok"></span><span class="preview-title">LIVE PREVIEW</span><div class="preview-controls"><button class="btn" id="refreshPreview">↻</button><button class="btn" id="openPreview">↗</button></div></div>
+  <div class="preview-stage" id="previewStage"><div class="preview-empty"><div><strong>Preview is standing by</strong><p>Open an HTML file or ask Xbot to interpret your FLUX source and generate a project.</p></div></div></div>
+ </section>
+</div>
+<div class="bottom"><div class="bottom-head"><button class="bottom-tab active" data-panel="output">OUTPUT</button><button class="bottom-tab" data-panel="problems">PROBLEMS <span id="problemCount">0</span></button><button class="bottom-tab" data-panel="build">BUILD</button><span style="margin-left:auto;font:9px var(--mono);color:#617589" id="buildState">IDLE</span></div><div class="console" id="console"><div class="log info">FLUX workspace initialized. Your project is saved locally in this browser.</div></div></div>
+</div>
+<button class="chat-launch" id="chatLaunch" title="Open Xbot"><img src="./Flux_Tech_Terminal_Logo.png" alt="Xbot"></button>
+<section class="chat-panel" id="chatPanel">
+ <div class="chat-head"><img src="./Flux_Tech_Terminal_Logo.png" alt=""><strong>XBOT</strong><small id="xbotState">AI ASSISTANT · CONNECTING</small><button class="iconbtn close" id="closeChat">✕</button></div>
+ <div class="chat-messages" id="chatMessages"><div class="msg bot">I'm Xbot. I can interpret your FLUX source, help build your project, modify files and explain errors. Your internal instructions stay hidden.</div></div>
+ <div class="chat-attach"><button class="btn" id="attachFiles">＋ FILE</button><button class="btn" id="attachImages">＋ IMAGE</button><span class="attach-list" id="attachList">No attachments</span></div>
+ <div class="chat-input"><textarea id="chatInput" rows="1" placeholder="Ask Xbot or describe what to build…"></textarea><button class="btn primary" id="sendChat">SEND ↗</button></div>
 </section>
-
+<input id="fileInput" type="file" multiple class="hidden" accept="*/*"><input id="zipInput" type="file" class="hidden" accept=".zip,application/zip"><input id="chatFileInput" type="file" multiple class="hidden"><input id="chatImageInput" type="file" multiple class="hidden" accept="image/*">
+<div class="modal-back" id="modal"><div class="modal"><h3 id="modalTitle">New file</h3><label id="modalLabel" style="font:10px var(--mono);color:#8ea0b2">FILE NAME</label><input id="modalInput" placeholder="example.flux"><div class="modal-actions"><button class="btn" id="modalCancel">CANCEL</button><button class="btn primary" id="modalConfirm">CREATE</button></div></div></div><div class="toast" id="toast"></div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/codemirror.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/xml/xml.min.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/javascript/javascript.min.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/css/css.min.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/htmlmixed/htmlmixed.min.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/markdown/markdown.min.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 <script>
-(() => {
- const $=id=>document.getElementById(id);
- window.addEventListener('error',e=>{const c=document.getElementById('console');if(c)c.textContent+='\\nJavaScript error: '+e.message;});
- const files=new Map(); let activePath=null, activeUrl=null, lastPreviewUrl=null, editable=false;
- const log=(msg,kind='')=>{const el=$('console');const line=document.createElement('div');line.textContent=msg;if(kind)line.className=kind;el.appendChild(line);el.scrollTop=el.scrollHeight};
- const ext=p=>(p.split('.').pop()||'').toLowerCase();
- const name=p=>p.split('/').pop();
- const mime=p=>({html:'text/html',htm:'text/html',css:'text/css',js:'text/javascript',mjs:'text/javascript',json:'application/json',svg:'image/svg+xml',png:'image/png',jpg:'image/jpeg',jpeg:'image/jpeg',gif:'image/gif',webp:'image/webp',mp4:'video/mp4',webm:'video/webm',mp3:'audio/mpeg',wav:'audio/wav',pdf:'application/pdf',txt:'text/plain',md:'text/markdown'}[ext(p)]||'application/octet-stream');
- const textExt=new Set(['html','htm','css','js','mjs','json','txt','md','py','ts','tsx','jsx','xml','yaml','yml','toml','sh','java','c','cpp','h','cs','go','rs','php','rb','swift','kt','dart','flux','sql','ini','gradle']);
- let editorMode='flux';
- const starterFlux=`{app} {dark, clean, responsive, dashboard}\n{header} {xtink, navigation, logo}\n{main} {welcome message, project overview, activity cards}\n{interaction} {buttons, responsive layout, smooth transitions}\n{style} {midnight background, blue accents, readable typography}`;
- function setEditorMode(mode){
-   editorMode=mode;
-   $('fluxModeBtn').classList.toggle('mode-active',mode==='flux');
-   $('codeModeBtn').classList.toggle('mode-active',mode==='code');
-   $('runFluxBtn').style.display=mode==='flux'?'inline-block':'none';
-   $('runCodeBtn').style.display=mode==='code'?'inline-block':'none';
-   $('fluxHelp').style.display=mode==='flux'?'block':'none';
-   $('editHint').textContent=mode==='flux'?'Write native FLUX. Run FLUX asks Xbot to interpret and build the project.':'Edit generated source, then save or run it.';
-   if(mode==='flux' && (!activePath || ext(activePath)!=='flux')){
-     const existing=[...files.keys()].find(x=>ext(x)==='flux');
-     if(existing) openFile(existing); else {activePath='main.flux';files.set(activePath,new TextEncoder().encode(starterFlux).buffer);openFile(activePath);}
-   }
- }
- function saveActiveEditor(){if(activePath&&editable)files.set(activePath,new TextEncoder().encode($('editor').textContent).buffer)}
- async function runFlux(){
-   if(editorMode!=='flux' && (!activePath || ext(activePath)!=='flux')){log('Switch to FLUX mode or open a .flux file first.','bad');return}
-   if(!activePath || ext(activePath)!=='flux'){setEditorMode('flux')}
-   saveActiveEditor();
-   const source=activePath&&files.has(activePath)?asText(files.get(activePath)):$('editor').textContent;
-   if(!source.trim()){log('The FLUX file is empty. Add some instructions first.','bad');return}
-   const buttons=[$('runFluxBtn'),$('runFluxTopBtn')];buttons.forEach(b=>{b.disabled=true;b.textContent='Interpreting…'});
-   $('engineState').textContent='Xbot interpreting FLUX';log('Sending '+(activePath||'main.flux')+' to Xbot FLUX interpreter…');
-   try{
-     const response=await fetch(XBOT_API_BASE+'/api/chat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'build',message:'BUILD THIS FLUX NOW. Interpret the complete source in context and generate the actual working project files. This is a code-generation request, not a request for an explanation. Return at least one complete HTML file for a web page. Do not invent fixed meanings for individual FLUX words.',flux:source,active_file:activePath||'main.flux',history:[],context:{project_files:[...files.keys()].slice(0,100)}})});
-     const data=await response.json();if(!response.ok)throw new Error(data.error||('Backend returned '+response.status));
-     const generated=Array.isArray(data.files)?data.files:[];let added=0;
-     for(const item of generated){if(!item||typeof item.path!=='string'||typeof item.content!=='string')continue;const path=item.path.replaceAll('\\','/');if(path.startsWith('/')||path.split('/').includes('..'))continue;files.set(path,new TextEncoder().encode(item.content).buffer);added++;}
-     renderTree();
-     $('stage').innerHTML='';const panel=document.createElement('div');panel.className='notice';const h=document.createElement('h2');h.textContent=added?'FLUX interpreted — project files generated':'FLUX interpreted';const p1=document.createElement('p');p1.textContent=data.reply||'Xbot has processed the FLUX source.';const p2=document.createElement('p');p2.textContent=added?added+' file(s) added to Project Explorer. Open the generated HTML file and run the preview.':'Xbot returned no project files. Check the error in the console and try Run FLUX again.';panel.append(h,p1,p2);$('stage').appendChild(panel);
-     log(data.reply||'FLUX interpretation complete.','good');log('Generated '+added+' project file(s).',added?'good':'');$('engineState').textContent=added?'PROJECT GENERATED':'FLUX PROCESSED';
-     const htmlFiles=[...files.keys()].filter(x=>/\.html?$/i.test(x));const firstHtml=htmlFiles.find(x=>/^index\.html?$/i.test(name(x)))||htmlFiles[0];if(firstHtml){openFile(firstHtml);$('layout').classList.remove('show-preview');log('Generated page ready: '+firstHtml+'. Choose Run preview to view it.','good')}
-   }catch(err){log('FLUX run failed: '+err.message,'bad');$('engineState').textContent='FLUX ERROR'}
-   finally{buttons.forEach((b,i)=>{b.disabled=false;b.textContent=i===0?'▶ Run FLUX':'▶ Run FLUX'})}
- }
- $('fluxModeBtn').addEventListener('click',()=>setEditorMode('flux'));
- $('codeModeBtn').addEventListener('click',()=>setEditorMode('code'));
- $('runFluxBtn').addEventListener('click',runFlux);
- $('runFluxTopBtn').addEventListener('click',runFlux);
- $('newFluxBtn').addEventListener('click',()=>{const p='main.flux';files.set(p,new TextEncoder().encode(starterFlux).buffer);setEditorMode('flux');openFile(p);log('Created '+p+'.','good')});
- function renderTree(){const list=$('fileList');list.innerHTML='';const paths=[...files.keys()].sort();$('fileCount').textContent=paths.length+' files';for(const p of paths){const b=document.createElement('button');b.className='file'+(p===activePath?' active':'');const ic=document.createElement('span');ic.className='ficon';ic.textContent=iconFor(p);const t=document.createElement('span');t.className='fname';t.textContent=p;b.append(ic,t);b.onclick=()=>openFile(p);list.appendChild(b)}}
- function iconFor(p){const e=ext(p);if(['html','htm'].includes(e))return'🌐';if(['png','jpg','jpeg','gif','webp','svg'].includes(e))return'▧';if(e==='py')return'🐍';if(e==='pdf')return'▤';if(['mp4','webm','mp3','wav'].includes(e))return'♫';return'{}'}
- function asText(v){return typeof v==='string'?v:new TextDecoder().decode(v)}
- async function addFiles(fileList){for(const f of fileList){if(f.name.toLowerCase().endsWith('.zip')){await addZip(f);continue}files.set(f.webkitRelativePath||f.name,await f.arrayBuffer())}renderTree();log('Loaded '+fileList.length+' selected item(s).','good');if(!activePath&&files.size){const preferred=[...files.keys()].find(p=>/^index\.html?$/i.test(name(p)))||[...files.keys()][0];openFile(preferred)}}
- async function addZip(file){if(!window.JSZip){log('ZIP support library did not load. Check your internet connection.','bad');return}try{const zip=await JSZip.loadAsync(file);let count=0;for(const [p,obj] of Object.entries(zip.files)){if(obj.dir||p.split('/').some(x=>x==='node_modules'||x==='.git'||x==='__MACOSX'))continue;files.set(p,await obj.async('arraybuffer'));count++}log('Extracted '+count+' files from '+file.name+'.','good')}catch(e){log('Could not read ZIP: '+e.message,'bad')}}
- function openFile(p){if(activePath&&editable)files.set(activePath,new TextEncoder().encode($('editor').textContent).buffer);activePath=p;const data=files.get(p);$('activeName').textContent=p;$('fileType').textContent=ext(p).toUpperCase()||'FILE';const ed=$('editor');if(textExt.has(ext(p))){ed.textContent=asText(data);editable=true;$('editHint').textContent='Edit source, then Save edits locally.'}else{ed.textContent='Binary file: '+p+'\nUse Run preview to render it if this format is supported.';editable=false;$('editHint').textContent='Binary file — not editable as text.'}ed.contentEditable=editable?'true':'false';renderTree();$('layout').classList.remove('show-preview')}
- function getData(p){if(p===activePath&&editable)return $('editor').textContent;return asText(files.get(p))}
- function revoke(){if(activeUrl){URL.revokeObjectURL(activeUrl);activeUrl=null}if(lastPreviewUrl){URL.revokeObjectURL(lastPreviewUrl);lastPreviewUrl=null}}
- function showHTML(source,basePath){
-   revoke();
-   const prefix=basePath?basePath.substring(0,basePath.lastIndexOf('/')+1):'';
-   const doc=new DOMParser().parseFromString(source,'text/html');
-   // Rewrite relative CSS/JS references to local object URLs. Keep this intentionally
-   // conservative: only files included in the uploaded project are rewritten.
-   for(const [path,data] of files){
-     if(path===activePath) continue;
-     const relative=path.startsWith(prefix)?path.slice(prefix.length):path;
-     const blob=new Blob([data],{type:mime(path)});
-     const url=URL.createObjectURL(blob);
-     if(ext(path)==='css'){
-       for(const node of doc.querySelectorAll('link[rel~="stylesheet"][href]')){
-         const href=node.getAttribute('href');
-         if(href===relative || href===path || href==='./'+relative) node.href=url;
-       }
-     } else if(ext(path)==='js'){
-       for(const node of doc.querySelectorAll('script[src]')){
-         const src=node.getAttribute('src');
-         if(src===relative || src===path || src==='./'+relative) node.src=url;
-       }
-     } else if(['png','jpg','jpeg','gif','webp','svg'].includes(ext(path))){
-       for(const node of doc.querySelectorAll('img[src]')){
-         const src=node.getAttribute('src');
-         if(src===relative || src===path || src==='./'+relative) node.src=url;
-       }
-     }
-   }
-   const blob=new Blob(['<!doctype html>\\n'+doc.documentElement.outerHTML],{type:'text/html'});
-   lastPreviewUrl=URL.createObjectURL(blob);
-   $('stage').innerHTML='';
-   const frame=document.createElement('iframe');
-   frame.setAttribute('sandbox','allow-scripts allow-forms allow-modals allow-pointer-lock allow-downloads');
-   frame.src=lastPreviewUrl;
-   $('stage').appendChild(frame);
-   log('Rendered HTML in an isolated preview frame.','good');
- }
- async function runPython(code){$('stage').innerHTML='<div class="notice"><h2>Starting Python runtime…</h2><p>First launch downloads Pyodide (several MB). Keep this tab open.</p></div>';log('Loading Pyodide browser Python runtime…');try{if(!window.loadPyodide){await loadScript('https://cdn.jsdelivr.net/pyodide/v0.26.4/full/pyodide.js')}const py=await window.loadPyodide();py.setStdout({batched:s=>log(s)});py.setStderr({batched:s=>log(s,'bad')});await py.runPythonAsync(code);$('stage').innerHTML='<div class="notice"><h2>Python script completed.</h2><p>See output in the console below. This runs in browser-based Pyodide, not a full desktop Python environment.</p></div>';log('Python execution finished.','good')}catch(e){$('stage').innerHTML='<div class="notice"><h2>Python runtime error</h2><pre></pre></div>';$('stage').querySelector('pre').textContent=String(e);log(String(e),'bad')}}
- function loadScript(src){return new Promise((res,rej)=>{const s=document.createElement('script');s.src=src;s.onload=res;s.onerror=()=>rej(Error('Could not load '+src));document.head.appendChild(s)})}
- function renderMedia(p){revoke();const blob=new Blob([files.get(p)],{type:mime(p)});activeUrl=URL.createObjectURL(blob);const e=ext(p),stage=$('stage');stage.innerHTML='';if(['png','jpg','jpeg','gif','webp','svg'].includes(e)){const w=document.createElement('div');w.className='media-wrap';const im=document.createElement('img');im.src=activeUrl;w.appendChild(im);stage.appendChild(w)}else if(['mp4','webm','mp3','wav'].includes(e)){const w=document.createElement('div');w.className='media-wrap';const m=document.createElement(['mp4','webm'].includes(e)?'video':'audio');m.src=activeUrl;m.controls=true;w.appendChild(m);stage.appendChild(w)}else if(e==='pdf'){const em=document.createElement('embed');em.src=activeUrl;em.type='application/pdf';stage.appendChild(em)}else return false;log('Rendered '+p+'.','good');return true}
- function explain(p){const e=ext(p);let msg='This file type is not directly executable in a browser preview.';if(['tsx','jsx','ts'].includes(e))msg='This appears to be a React/TypeScript source file. It needs a project build step (usually npm install + a bundler) before it can run. This one-file prototype can inspect the source but does not install npm packages or build frameworks.';else if(['java','c','cpp','cs','go','rs','swift','kt','dart'].includes(e))msg='This is native/compiled source. It needs its compiler, SDK and often a target platform. A browser-only HTML file cannot compile and launch every native application.';else if(['apk','aab','ipa','exe','msi','dmg','app'].includes(e))msg='This is a packaged mobile or desktop application. It cannot be launched inside a normal browser tab. It needs a device emulator, operating system or platform-specific runtime.';else if(e==='py')msg='Python scripts are supported through Pyodide for compatible pure-Python code. Native packages, system access, servers and GUI frameworks may not work.';else if(['yml','yaml','toml','json'].includes(e))msg='Configuration/data file detected. It can be inspected, but it is not a standalone runnable application.';$('stage').innerHTML='';const d=document.createElement('div');d.className='notice';const h=document.createElement('h2');h.textContent='Preview capability notice';const pEl=document.createElement('p');pEl.textContent=msg;const p2=document.createElement('p');p2.textContent='Selected: '+p;d.append(h,pEl,p2);stage.appendChild(d);log(msg,'bad')}
- async function run(){if(!activePath){const html=[...files.keys()].find(p=>/^index\.html?$/i.test(name(p)));if(html)activePath=html;else{log('Choose a file first.','bad');return}}const e=ext(activePath);if(['html','htm'].includes(e)){showHTML(getData(activePath),activePath)}else if(e==='py'){await runPython(getData(activePath))}else if(renderMedia(activePath)){}else if(textExt.has(e)){const d=document.createElement('pre');d.textContent=getData(activePath);$('stage').innerHTML='';$('stage').appendChild(d);log('Showing source text; this file is not a standalone preview.','good')}else explain(activePath);$('layout').classList.add('show-preview')}
- $('browseBtn').onclick=()=>$('fileInput').click();$('openBtn').onclick=()=>$('fileInput').click();$('fileInput').onchange=e=>addFiles(e.target.files);
- const dz=$('dropZone');['dragenter','dragover'].forEach(ev=>dz.addEventListener(ev,e=>{e.preventDefault();dz.classList.add('drag')}));['dragleave','drop'].forEach(ev=>dz.addEventListener(ev,e=>{e.preventDefault();dz.classList.remove('drag')}));dz.addEventListener('drop',e=>addFiles(e.dataTransfer.files));document.addEventListener('dragover',e=>e.preventDefault());document.addEventListener('drop',e=>{e.preventDefault();if(e.dataTransfer.files.length)addFiles(e.dataTransfer.files)});
- $('runBtn').onclick=run;$('runCodeBtn').onclick=()=>{if(!activePath){log('Open a file first.','bad');return}if(editable)files.set(activePath,new TextEncoder().encode($('editor').textContent).buffer);run()};$('saveBtn').onclick=()=>{if(!activePath||!editable){log('No editable source file is open.','bad');return}files.set(activePath,new TextEncoder().encode($('editor').textContent).buffer);log('Saved '+activePath+' in this browser session.','good')};$('refreshBtn').onclick=run;$('clearConsole').onclick=()=>$('console').textContent='';$('newTabBtn').onclick=()=>{if(lastPreviewUrl)window.open(lastPreviewUrl,'_blank','noopener');else log('Run a preview first.','bad')};
- $('engineState').textContent='FLUX READY';log('XTINK FLUX Studio ready. Create a .flux file or open an existing project.');setEditorMode('flux'); 
-
- // Xbot chat UI and attachment picker.
- const XBOT_API_BASE = "https://xtinkflux.onrender.com";
- const xPanel=$('xbotPanel'), xLauncher=$('xbotLauncher'), xMessages=$('xbotMessages');
- let xHistory=[], xAttachments=[];
- function xbotOpen(open){
-   xPanel.classList.toggle('open',open);
-   xPanel.setAttribute('aria-hidden',String(!open));
-   if(open) setTimeout(()=>$('xbotInput').focus(),200);
- }
- xLauncher.addEventListener('click',()=>xbotOpen(!xPanel.classList.contains('open')));
- $('xbotClose').addEventListener('click',()=>xbotOpen(false));
- function xbotBubble(text,who='bot',error=false){
-   const el=document.createElement('div');el.className='xbot-msg '+who+(error?' error':'');el.textContent=text;xMessages.appendChild(el);xMessages.scrollTop=xMessages.scrollHeight;return el;
- }
- function xbotRenderAttachments(){
-   const wrap=$('xbotAttachments');wrap.innerHTML='';
-   xAttachments.forEach((file,index)=>{
-     const chip=document.createElement('div');chip.className='xbot-attachment';
-     const label=document.createElement('span');label.textContent=(file.type.startsWith('image/')?'▧ ':'📎 ')+file.name;label.title=file.name;
-     const remove=document.createElement('button');remove.type='button';remove.textContent='×';remove.setAttribute('aria-label','Remove '+file.name);
-     remove.onclick=()=>{xAttachments.splice(index,1);xbotRenderAttachments()};
-     chip.append(label,remove);wrap.appendChild(chip);
-   });
- }
- function xbotAddFiles(fileList){
-   for(const file of fileList){xAttachments.push(file)}
-   xbotRenderAttachments();
- }
- $('xbotPictureBtn').addEventListener('click',()=>$('xbotPictureInput').click());
- $('xbotFileBtn').addEventListener('click',()=>$('xbotFileInput').click());
- $('xbotPictureInput').addEventListener('change',e=>{xbotAddFiles(e.target.files);e.target.value=''});
- $('xbotFileInput').addEventListener('change',e=>{xbotAddFiles(e.target.files);e.target.value=''});
- async function xbotSendMessage(message){
-   const send=$('xbotSend');send.disabled=true;$('xbotStatus').textContent='Thinking…';
-   const pending=xbotBubble('Thinking…');
-   const context={active_file:activePath||null,active_file_content:(activePath&&editable)?$('editor').textContent.slice(0,12000):null,project_files:[...files.keys()].slice(0,80)};
-   try{
-     // Text files are sent as readable context. Images and other binary attachments
-     // are represented by name/type until the backend is extended for multimodal upload.
-     const attachments=[];
-     for(const file of xAttachments){
-       const item={name:file.name,type:file.type||'application/octet-stream',size:file.size};
-       if(file.type.startsWith('text/')||/\.(txt|md|json|csv|py|js|css|html|xml|yaml|yml|flux)$/i.test(file.name)){
-         item.content=(await file.text()).slice(0,12000);
-       }
-       attachments.push(item);
-     }
-     const response=await fetch(XBOT_API_BASE+'/api/chat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({message,history:xHistory.slice(-12),context,attachments})});
-     const data=await response.json();
-     if(!response.ok) throw new Error(data.error||('Backend returned '+response.status));
-     pending.remove();xbotBubble(data.reply||'I received an empty response.');
-     xHistory.push({role:'user',content:message},{role:'assistant',content:data.reply||''});
-     xAttachments=[];xbotRenderAttachments();$('xbotStatus').textContent='Assistant · Online';
-   }catch(err){
-     pending.remove();xbotBubble('I could not reach the Xbot backend. '+err.message+'\n\nCheck that xbot_backend.py is running and the API address is correct.','bot',true);
-     $('xbotStatus').textContent='Backend unavailable';
-   }finally{send.disabled=false;$('xbotInput').focus()}
- }
- $('xbotForm').addEventListener('submit',e=>{
-   e.preventDefault();const box=$('xbotInput'),message=box.value.trim();
-   if(!message&&!xAttachments.length)return;
-   const display=message||(xAttachments.length?'Please review these attachments.':'');
-   xbotBubble(display+(xAttachments.length?'\n'+xAttachments.map(f=>'📎 '+f.name).join('\n'):''),'user');
-   box.value='';xbotSendMessage(display);
- });
- $('xbotInput').addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();$('xbotForm').requestSubmit()}});
-
+(()=>{
+'use strict';
+const API_BASE='https://xtinkflux.onrender.com'; // Change this only if your Render backend URL changes.
+const API_CHAT=API_BASE+'/api/chat', API_HEALTH=API_BASE+'/health';
+const KEY='flux.workspace.v3';
+const starter=`page01 {\n  defineheader {\n    header: "Be a puzzleminded individual"\n    secondheader: leftsideup blue robotobold text: "Mmeso IQ Testing"\n  }\n}`;
+let files={},active='main.flux',projectName='untitled-project',editor=null,dirty=false,attachments=[],history=[],lastPreviewUrl=null,activePanel='output';
+const $=id=>document.getElementById(id);
+function toast(s){const t=$('toast');t.textContent=s;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2400)}
+function log(s,type='info'){const d=document.createElement('div');d.className='log '+type;const tm=document.createElement('span');tm.className='time';tm.textContent=new Date().toLocaleTimeString();d.append(tm,document.createTextNode(s));$('console').append(d);$('console').scrollTop=$('console').scrollHeight}
+function setBuild(s){$('buildState').textContent=s.toUpperCase()}
+function extMode(name){let e=name.split('.').pop().toLowerCase();return ({html:'htmlmixed',htm:'htmlmixed',css:'css',js:'javascript',mjs:'javascript',json:'javascript',md:'markdown',xml:'xml',flux:'flux'})[e]||'text/plain'}
+function loadWorkspace(){try{let v=JSON.parse(localStorage.getItem(KEY)||'null');if(v&&v.files&&Object.keys(v.files).length){files=v.files;active=v.active||Object.keys(files)[0];projectName=v.name||projectName;return}}catch(e){}files={'main.flux':starter,'index.html':'<!doctype html>\n<html>\n<head><meta charset="utf-8"><title>FLUX Preview</title></head>\n<body>\n  <h1>Hello from FLUX</h1>\n  <p>Ask Xbot to turn your FLUX source into a working project.</p>\n</body>\n</html>','styles.css':'body { font-family: sans-serif; padding: 3rem; }\nh1 { color: #167ec1; }'};active='main.flux'}
+function saveWorkspace(){try{localStorage.setItem(KEY,JSON.stringify({files,active,name:projectName,updated:Date.now()}));dirty=false;$('saveState').textContent='SAVED LOCALLY';$('projectTitle').textContent=projectName}catch(e){$('saveState').textContent='STORAGE FULL';log('Local storage could not save this project. Download a backup.','error')}}
+function getValue(){return editor?editor.getValue():$('editor').value}
+function setValue(v){if(editor)editor.setValue(v);else $('editor').value=v;}
+function syncActive(){files[active]=getValue();dirty=true;$('saveState').textContent='UNSAVED CHANGES';renderTree();scheduleSave()}
+let saveTimer;function scheduleSave(){clearTimeout(saveTimer);saveTimer=setTimeout(saveWorkspace,450)}
+function renderTree(){let root=$('fileTree');root.innerHTML='';Object.keys(files).sort((a,b)=>a.localeCompare(b)).forEach(name=>{let b=document.createElement('button');b.className='file-row'+(name===active?' active':'');let icon=document.createElement('span');icon.className='file-icon';icon.textContent=name.endsWith('.flux')?'◈':name.endsWith('.html')?'◇':name.endsWith('.css')?'▧':name.endsWith('.js')?'⌘':'▤';let label=document.createElement('span');label.textContent=name;b.append(icon,label);if(name===active&&dirty){let m=document.createElement('span');m.className='modified';m.textContent='●';b.append(m)}b.onclick=()=>openFile(name);b.oncontextmenu=e=>{e.preventDefault();if(confirm('Delete '+name+'?')){delete files[name];if(active===name){active=Object.keys(files)[0]||'main.flux';if(!Object.keys(files).length)files[active]=''}openFile(active);saveWorkspace();toast('File deleted')}};root.append(b)});$('assetCount').textContent=Object.keys(files).length+' FILES';}
+function openFile(name){syncToCurrentWithoutRender();active=name;if(!editor){$('editor').value=files[name]||''}else{editor.setOption('mode',extMode(name));editor.setValue(files[name]||'')}$('activeTab').textContent=name;$('fileType').textContent=extMode(name).toUpperCase()+' SOURCE';renderTree();saveWorkspace();}
+function syncToCurrentWithoutRender(){if(active)files[active]=getValue()}
+function setupEditor(){const ta=$('editor');if(window.CodeMirror){CodeMirror.defineMode('flux',function(){return {token:function(stream){if(stream.eatSpace())return null;if(stream.match(/\b(page|defineheader|style|text|header|secondheader)\b/))return 'keyword';if(stream.match(/\b(leftsideup|blue|robotobold|ontap|go)\b/))return 'atom';if(stream.match(/\"([^\"\\]|\\.)*\"/))return 'string';if(stream.match(/#[0-9a-fA-F]{3,8}\b/))return 'number';if(stream.match(/[{}:,]/))return 'bracket';stream.next();return null}}});editor=CodeMirror.fromTextArea(ta,{theme:'material-darker',lineNumbers:true,indentUnit:2,tabSize:2,indentWithTabs:false,mode:'text/plain',lineWrapping:false,viewportMargin:Infinity,extraKeys:{'Ctrl-S':()=>{syncToCurrentWithoutRender();saveWorkspace();toast('Project saved')},'Cmd-S':()=>{syncToCurrentWithoutRender();saveWorkspace();toast('Project saved')},Tab:cm=>cm.replaceSelection('  ')}});editor.on('change',()=>{syncActive();updateCursor()});editor.on('cursorActivity',updateCursor);editor.setOption('mode',extMode(active));editor.setValue(files[active]||'')}else{ta.value=files[active]||'';ta.addEventListener('input',()=>{syncActive();updateCursor()})}}
+function updateCursor(){let p=editor?editor.getCursor():{line:0,ch:0};$('cursorPos').textContent=`Ln ${p.line+1}, Col ${p.ch+1}`}
+function openModal(title,label,placeholder,confirmText,cb){$('modalTitle').textContent=title;$('modalLabel').textContent=label;$('modalInput').value='';$('modalInput').placeholder=placeholder;$('modalConfirm').textContent=confirmText;$('modal').classList.add('show');$('modalInput').focus();$('modalConfirm').onclick=()=>{let v=$('modalInput').value.trim();if(!v)return;cb(v);$('modal').classList.remove('show')};}
+function modeChange(){if(editor){editor.setOption('mode',extMode(active));editor.refresh()}}
+function previewHtml(){let html=files[active]&&/\.html?$/i.test(active)?files[active]:(files['index.html']||'');if(!html){$('previewStage').innerHTML='<div class="preview-empty"><div><strong>No HTML preview available</strong><p>Open index.html or run your FLUX source through Xbot.</p></div></div>';return}
+Object.entries(files).forEach(([n,content])=>{if(n.endsWith('.css')){const escaped=content.replace(/<\/style/gi,'<\\/style');if(new RegExp(`<link[^>]+href=["'][^"']*${n.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')}["'][^>]*>`, 'i').test(html)){html=html.replace(new RegExp(`<link[^>]+href=["'][^"']*${n.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')}["'][^>]*>`, 'i'),`<style>${escaped}</style>`)}else if(!html.includes('<style'))html=html.replace('</head>',`<style>${escaped}</style></head>`)}if(n.endsWith('.js')){const escaped=content.replace(/<\/script/gi,'<\\/script');if(new RegExp(`<script[^>]+src=["'][^"']*${n.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')}["'][^>]*><\\/script>`, 'i').test(html))html=html.replace(new RegExp(`<script[^>]+src=["'][^"']*${n.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')}["'][^>]*><\\/script>`, 'i'),`<script>${escaped}<\\/script>`);else if(!html.includes(n))html=html.replace('</body>',`<script>${escaped}<\\/script></body>`)}});
+Object.entries(files).forEach(([n,c])=>{if(typeof c==='string'&&c.startsWith('data:image/')){html=html.replaceAll('\"'+n+'\"','\"'+c+'\"').replaceAll("'"+n+"'","'"+c+"'").replaceAll('url('+n+')','url('+c+')')}});$('previewStage').innerHTML='';let frame=document.createElement('iframe');frame.title='FLUX project preview';frame.setAttribute('sandbox','allow-scripts allow-forms allow-modals allow-popups');$('previewStage').append(frame);frame.srcdoc=html;lastPreviewUrl=null;log('Preview refreshed from '+(active.endsWith('.html')?active:'index.html')+'.','ok')}
+async function checkBackend(){try{let r=await fetch(API_HEALTH,{cache:'no-store'});if(!r.ok)throw Error('HTTP '+r.status);$('backendStatus').innerHTML='<i class="dot ok"></i><span>BACKEND ONLINE</span>';$('xbotState').textContent='AI ASSISTANT · ONLINE'}catch(e){$('backendStatus').innerHTML='<i class="dot bad"></i><span>BACKEND UNREACHABLE</span>';$('xbotState').textContent='AI ASSISTANT · OFFLINE';log('Could not reach backend health endpoint. Check Render service and API_BASE.','error')}}
+function showChat(){ $('chatPanel').classList.add('open');$('chatInput').focus() }function hideChat(){$('chatPanel').classList.remove('open')}
+function addMessage(text,who='bot'){let d=document.createElement('div');d.className='msg '+who;d.textContent=text;$('chatMessages').append(d);$('chatMessages').scrollTop=$('chatMessages').scrollHeight;return d}
+function allProjectContext(){syncToCurrentWithoutRender();let parts=Object.entries(files).map(([n,c])=>`--- ${n} ---\n${typeof c==='string'&&c.startsWith('data:image/')?'[Image asset stored in workspace; binary content omitted from text context.]':c}`).join('\n\n');return (`Project: ${projectName}\nActive file: ${active}\nProject files:\n${Object.keys(files).join(', ')}\n\nFull project contents:\n${parts}`).slice(0,140000)}
+function applyGeneratedFiles(generated){if(!generated)return 0;let count=0;if(Array.isArray(generated)){generated.forEach(x=>{if(x&&x.path&&typeof x.content==='string'){let p=x.path.replace(/^\/+/, '').replace(/\.\.(\/|\\)/g,'');if(p){files[p]=x.content;count++}}})}else if(typeof generated==='object'){Object.entries(generated).forEach(([p,c])=>{p=p.replace(/^\/+/, '').replace(/\.\.(\/|\\)/g,'');if(p&&typeof c==='string'){files[p]=c;count++}})}return count}
+async function callXbot(message,asFlux=false){syncToCurrentWithoutRender();const userText=message.trim();if(!userText)return;addMessage(userText,'user');history.push({role:'user',content:userText});$('sendChat').disabled=true;$('sendChat').textContent='…';setBuild(asFlux?'GENERATING':'XBOT THINKING');let botNode=addMessage('Xbot is working…','bot');try{let body={message:userText,flux:asFlux?getValue():(active.endsWith('.flux')?getValue():''),active_file:active,history:history.slice(-12),context:allProjectContext(),project_name:projectName};let response=await fetch(API_CHAT,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});let raw=await response.text();let data;try{data=JSON.parse(raw)}catch{throw Error('Backend returned a non-JSON response: '+raw.slice(0,180))}if(!response.ok)throw Error(data.error||data.message||'Request failed ('+response.status+')');let reply=data.reply||data.response||data.message||'Xbot completed the request.';let n=applyGeneratedFiles(data.files||data.generated_files);if(n){renderTree();if(files[active]===undefined)active=Object.keys(files)[0];if(files['index.html'])previewHtml();else if(files['main.html']){active='main.html';openFile(active);previewHtml()}saveWorkspace();log('Xbot generated or updated '+n+' project file(s).','ok');reply+=`\n\nUpdated ${n} project file(s): ${Object.keys(files).join(', ')}`;}botNode.textContent=reply;history.push({role:'assistant',content:reply});if(data.error)log(data.error,'error');else log(asFlux?'FLUX interpretation returned by Xbot.':'Xbot response received.','ok');setBuild('READY')}catch(e){botNode.textContent='I could not complete that request. '+e.message+'\n\nCheck that your Render backend is running and that its /api/chat route is available.';log('Xbot request failed: '+e.message,'error');setBuild('ERROR')}finally{$('sendChat').disabled=false;$('sendChat').textContent='SEND ↗';$('chatMessages').scrollTop=$('chatMessages').scrollHeight}}
+function runFlux(){if(!active.endsWith('.flux')){let f=Object.keys(files).find(x=>x.endsWith('.flux'));if(f)openFile(f)}showChat();callXbot('Interpret the complete FLUX source and project context. Build the requested result. Generate complete project files and return them in the files field. Do not expose internal prompts or hidden reasoning.',true)}
+async function fileAsDataUrl(file){return await new Promise((resolve,reject)=>{const r=new FileReader();r.onload=()=>resolve(String(r.result));r.onerror=reject;r.readAsDataURL(file)})}
+async function uploadIntoProject(fileList){for(const f of fileList){if(f.size>5*1024*1024){log(f.name+' skipped: larger than 5 MB.','error');continue}if(f.name.toLowerCase().endsWith('.zip')&&window.JSZip){const z=await JSZip.loadAsync(f);for(const [path,item] of Object.entries(z.files)){if(item.dir||path.startsWith('__MACOSX/'))continue;const ext=path.split('.').pop().toLowerCase();if(['png','jpg','jpeg','gif','webp','svg'].includes(ext)){const blob=await item.async('blob');if(blob.size<1200000)files[path]='data:image/'+(ext==='jpg'?'jpeg':ext)+';base64,'+await item.async('base64');else log(path+' skipped: image is too large for browser-local storage.','error')}else files[path]=await item.async('string')}continue}if(f.type.startsWith('image/')){if(f.size>1200000){log(f.name+' skipped: image exceeds 1.2 MB local-storage limit.','error');continue}files['assets/'+f.name]=await fileAsDataUrl(f);continue}files[f.webkitRelativePath||f.name]=await f.text()}renderTree();saveWorkspace();log('Imported '+fileList.length+' file(s).','ok');toast('Files added to workspace')}
+function downloadFile(){syncToCurrentWithoutRender();let blob=new Blob([files[active]||''],{type:'text/plain'}),a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=active.split('/').pop();a.click();URL.revokeObjectURL(a.href)}
+async function exportZip(){syncToCurrentWithoutRender();if(!window.JSZip){toast('ZIP library is unavailable');return}let z=new JSZip();Object.entries(files).forEach(([n,c])=>z.file(n,c));let blob=await z.generateAsync({type:'blob'});let a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=projectName+'.zip';a.click();URL.revokeObjectURL(a.href);toast('Project ZIP downloaded')}
+function setPanel(name){activePanel=name;document.querySelectorAll('.bottom-tab').forEach(b=>b.classList.toggle('active',b.dataset.panel===name));if(name==='problems')$('console').innerHTML='<div class="log ok">No problems reported by the workspace yet. Runtime errors appear here when captured.</div>';else if(name==='build')$('console').innerHTML='<div class="log info">Build output will appear here when Xbot generates or updates project files.</div>';else $('console').innerHTML='<div class="log info">FLUX workspace initialized. Autosave is enabled.</div>'}
+$('newFileBtn').onclick=()=>openModal('Create project file','FILE NAME','component.flux','CREATE',name=>{if(files[name]){toast('That file already exists');return}files[name]='';openFile(name);saveWorkspace();log('Created '+name+'.','ok')});$('newProjectBtn').onclick=()=>{if(!confirm('Create a new project? Download or save your current work first.'))return;files={'main.flux':starter};active='main.flux';projectName='untitled-project';openFile(active);saveWorkspace();previewHtml();log('New project created.','ok')};$('uploadBtn').onclick=()=>$('fileInput').click();$('fileInput').onchange=e=>{uploadIntoProject(e.target.files);e.target.value=''};$('openProjectBtn').onclick=()=>$('zipInput').click();$('exportZipBtn').onclick=exportZip;$('zipInput').onchange=e=>{if(e.target.files[0])uploadIntoProject([e.target.files[0]]);e.target.value=''};$('saveBtn').onclick=()=>{syncToCurrentWithoutRender();saveWorkspace();toast('Saved in this browser')};$('downloadBtn').onclick=downloadFile;$('formatBtn').onclick=()=>{if(editor){let v=editor.getValue().split('\n').map(x=>x.replace(/[ \t]+$/,'')).join('\n');editor.setValue(v)}else $('editor').value=$('editor').value.split('\n').map(x=>x.trimEnd()).join('\n');toast('Trailing whitespace removed')};$('runBtn').onclick=runFlux;$('previewToggle').onclick=()=>{$('layout').classList.toggle('show-preview');previewHtml()};$('refreshPreview').onclick=previewHtml;$('openPreview').onclick=()=>{let f=$('previewStage').querySelector('iframe');if(!f){previewHtml();f=$('previewStage').querySelector('iframe')}try{let w=window.open('about:blank','_blank');w.document.write(f.srcdoc);w.document.close()}catch(e){toast('Allow popups to open preview')}};$('chatLaunch').onclick=showChat;$('closeChat').onclick=hideChat;$('sendChat').onclick=()=>{let v=$('chatInput').value.trim();if(!v)return;$('chatInput').value='';callXbot(v,false)};$('chatInput').addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();$('sendChat').click()}});$('attachFiles').onclick=()=>$('chatFileInput').click();$('attachImages').onclick=()=>$('chatImageInput').click();$('chatFileInput').onchange=async e=>{for(let f of e.target.files){attachments.push({name:f.name,type:f.type,content:await f.text()})}$('attachList').textContent=attachments.map(x=>x.name).join(', ');e.target.value=''};$('chatImageInput').onchange=e=>{for(let f of e.target.files)attachments.push({name:f.name,type:f.type,content:'[Image attachment metadata; current text-only backend may not be able to inspect image pixels.]'});$('attachList').textContent=attachments.map(x=>x.name).join(', ');e.target.value=''};
+// Send attachment contents with the next message as project context, without exposing backend prompts.
+const originalCall=callXbot;callXbot=async function(message,asFlux=false){if(attachments.length){message+='\n\nAttached files:\n'+attachments.map(a=>'--- '+a.name+' ('+a.type+') ---\n'+a.content).join('\n\n');attachments=[];$('attachList').textContent='No attachments'}return originalCall(message,asFlux)};
+document.querySelectorAll('.bottom-tab').forEach(b=>b.onclick=()=>setPanel(b.dataset.panel));$('modalCancel').onclick=()=>$('modal').classList.remove('show');
+loadWorkspace();renderTree();setupEditor();$('activeTab').textContent=active;$('projectTitle').textContent=projectName;saveWorkspace();checkBackend();setInterval(checkBackend,60000);log('Workspace ready. Xbot connects to '+API_BASE+'.','ok');
 })();
 </script>
-
-
-
-</body>
-</html>
+</body></html>
