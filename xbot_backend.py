@@ -16,9 +16,16 @@ CORS(app)
 GROQ_MODEL = os.getenv("GROQ_MODEL", "openai/gpt-oss-120b")
 MAX_FLUX_CHARS = 30000
 MAX_MESSAGE_CHARS = 12000
+MAX_ATTACHMENTS = 8
+MAX_IMAGE_CHARS = 7_000_000
+VISION_MODEL = os.getenv("GROQ_VISION_MODEL", "meta-llama/llama-4-scout-17b-16e-instruct")
 
 SYSTEM_PROMPT = r"""
-You are Xbot, the AI architect and native FLUX reasoning/build engine inside XTINK.
+You are Xbot, the coding-only AI architect and native FLUX reasoning/build engine inside Xtink.
+You ONLY assist with programming, FLUX language, software engineering, web/app development,
+debugging, code review, technical explanations, project files, and related development tasks.
+If a user asks about unrelated subjects (general trivia, personal advice, entertainment, etc.),
+politely say you only help with coding and software development. Do not answer the unrelated request.
 
 ABOUT FLUX
 FLUX is a compact, context-dependent programming language. It is NOT ordinary prose,
@@ -116,9 +123,9 @@ def clean_files(value: Any) -> list[dict[str, str]]:
     return files
 
 
-def ask_model(client: Groq, messages: list[dict[str, str]]) -> dict[str, Any]:
+def ask_model(client: Groq, messages: list[dict[str, Any]], model: str | None = None) -> dict[str, Any]:
     completion = client.chat.completions.create(
-        model=GROQ_MODEL,
+        model=model or GROQ_MODEL,
         temperature=0.15,
         max_completion_tokens=12000,
         response_format={"type": "json_object"},
@@ -138,6 +145,28 @@ def health():
     return jsonify({"ok": True, "groq_configured": bool(os.getenv("GROQ_API_KEY")), "model": GROQ_MODEL})
 
 
+def prepare_attachments(raw: Any) -> tuple[list[dict[str, str]], list[dict[str, str]]]:
+    """Return safe text attachments and image data URLs for the model."""
+    text_items: list[dict[str, str]] = []
+    images: list[dict[str, str]] = []
+    if not isinstance(raw, list):
+        return text_items, images
+    for item in raw[:MAX_ATTACHMENTS]:
+        if not isinstance(item, dict):
+            continue
+        name = str(item.get("name", "attachment"))[:180]
+        mime = str(item.get("type", "application/octet-stream"))[:100].lower()
+        if mime.startswith("image/"):
+            data_url = item.get("data_url", "")
+            if isinstance(data_url, str) and data_url.startswith("data:image/") and len(data_url) <= MAX_IMAGE_CHARS:
+                images.append({"name": name, "data_url": data_url})
+        else:
+            content = item.get("content", "")
+            if isinstance(content, str) and content:
+                text_items.append({"name": name, "content": content[:20000]})
+    return text_items, images
+
+
 @app.post("/api/chat")
 def chat():
     payload = request.get_json(silent=True) or {}
@@ -151,12 +180,16 @@ def chat():
         return jsonify({"error": "Please enter a message for Xbot."}), 400
     if len(message) > MAX_MESSAGE_CHARS:
         return jsonify({"error": "That message is too long."}), 400
+    raw_attachments = payload.get("attachments", [])
+    if isinstance(raw_attachments, list) and len(raw_attachments) > MAX_ATTACHMENTS:
+        return jsonify({"error": f"Attach no more than {MAX_ATTACHMENTS} files at once."}), 400
 
     api_key = os.getenv("GROQ_API_KEY")
     if not api_key:
         return jsonify({"error": "GROQ_API_KEY is missing. Add it to your Render environment variables."}), 503
 
     context = payload.get("context") if isinstance(payload.get("context"), dict) else {}
+    text_attachments, image_attachments = prepare_attachments(payload.get("attachments", []))
     history = payload.get("history") if isinstance(payload.get("history"), list) else []
     # Keep only small, well-formed history entries to avoid sending arbitrary payloads.
     safe_history = []
@@ -172,15 +205,23 @@ def chat():
         "flux_source": flux,
         "user_request": message,
         "project_context": context,
-        "attachments": payload.get("attachments", []) if isinstance(payload.get("attachments", []), list) else [],
+        "attachments": text_attachments,
     }
     messages = [{"role": "system", "content": SYSTEM_PROMPT}]
     messages.extend(safe_history)
-    messages.append({"role": "user", "content": json.dumps(user_context, ensure_ascii=False)})
+    user_text = json.dumps(user_context, ensure_ascii=False)
+    if image_attachments:
+        user_content: Any = [{"type": "text", "text": user_text + "\nPlease inspect the attached image(s) as coding/design references. Describe or implement only what is relevant to the user's coding request."}]
+        for image_item in image_attachments:
+            user_content.append({"type": "text", "text": "Attached image: " + image_item["name"]})
+            user_content.append({"type": "image_url", "image_url": {"url": image_item["data_url"]}})
+        messages.append({"role": "user", "content": user_content})
+    else:
+        messages.append({"role": "user", "content": user_text})
 
     try:
         client = Groq(api_key=api_key)
-        result = ask_model(client, messages)
+        result = ask_model(client, messages, model=VISION_MODEL if image_attachments else GROQ_MODEL)
         files = clean_files(result.get("files", result.get("generated_files", [])))
 
         # A build request that receives prose but no files gets one explicit repair
@@ -196,7 +237,7 @@ def chat():
                     "instructions instead of code. Preserve the user's requested visible text and design."
                 )},
             ]
-            result = ask_model(client, repair_messages)
+            result = ask_model(client, repair_messages, model=VISION_MODEL if image_attachments else GROQ_MODEL)
             files = clean_files(result.get("files", result.get("generated_files", [])))
 
         reply = result.get("reply", "")
